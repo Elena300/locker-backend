@@ -3,6 +3,7 @@ import express, { json } from "express";
 import mongoose from "mongoose";
 import { UserModel } from "./models/User.js";
 import jwt from "jsonwebtoken";
+import bcrypt, { hash } from "bcrypt";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import userRouter from "./Routes/userRoute.js";
@@ -50,6 +51,21 @@ app.get("/profile", (req, res) => {
   })
 
 app.use("/", userRouter);
+
+app.post("/login", async (req, res) => {
+  const {username, password} = req.body;
+  const foundUser = await UserModel.findOne({username: username});
+  if (foundUser) {
+    const passOk = bcrypt.compareSync(password, foundUser.password)
+    if (passOk) {
+      jwt.sign({ userID: foundUser._id, username }, jwtSecret, {}, (err, token) => {
+        res.cookie('token', token, {sameSite:'none', secure:true}).json({
+          id: foundUser._id,
+        })
+      });
+    }
+  }
+})
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
