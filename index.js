@@ -7,6 +7,7 @@ import bcrypt, { hash } from "bcrypt";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import userRouter from "./Routes/userRoute.js";
+import messageRoute from "./Routes/messageRoute.js";
 
 dotenv.config();
 mongoose
@@ -51,6 +52,7 @@ app.get("/profile", (req, res) => {
   })
 
 app.use("/", userRouter);
+app.use("/user", messageRoute);
 
 app.post("/login", async (req, res) => {
   const {username, password} = req.body;
